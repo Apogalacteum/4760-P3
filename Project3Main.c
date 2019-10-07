@@ -2,10 +2,22 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <unistd.h>
+#include <sys/shm.h>
+#include <sys/ipc.h>
 
 int main(int argc, char *argv[])
-{
-
+{	
+	key_t key = ftok("shmfile", 65);
+	int shmid = shmget(key,1024,0666|IPC_CREAT);
+	int *clockSec = (int) shmat(shmid,(void*)0,0);
+	int *clockNano = (int) shmat(shmid,(void*)0,0);
+	char *shmMsg = (char*) shmat(shmid,(void*)0,0);
+	clockSec = 0;
+	clockNano = 0;
+	shmdt(&clockSec);
+	shmdt(&clockNano);
+	shmdt(shmMsg);
+	
 	int opt, time, i;
 	pid_t cpid = 0;
 	int maxChildProcesses = 5;
@@ -52,6 +64,21 @@ int main(int argc, char *argv[])
 	{
 		if(cpid = fork())
 			break;
+	}
+
+	if(cpid != 0)
+	{
+		while(clockSec < 2)
+		{
+			clockNano = clockNano + 5;
+			if(shmMsg[0] != '\0')
+				fprint("Message: %s\n", shmMsg);
+			if(clockNano >= 1000000000)
+			{
+				clockNano = 0;
+				clockSec = clockSec++;
+			}
+		}
 	}
 
 	printf("---\n");
