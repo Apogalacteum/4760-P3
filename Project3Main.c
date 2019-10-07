@@ -6,7 +6,8 @@
 int main(int argc, char *argv[])
 {
 
-	int opt, time;
+	int opt, time, i;
+	pid_t cpid = 0;
 	int maxChildProcesses = 5;
 	int realTime = 5;
 	char* logFile;
@@ -24,7 +25,7 @@ int main(int argc, char *argv[])
 				break;
 			case 's':
 				printf("s with %s\n", optarg);
-				maxChildProcesses = optarg;
+				maxChildProcesses = atoi(optarg);
 				break;
 			case 'l':
 				printf("l with %s\n", optarg);
@@ -32,7 +33,7 @@ int main(int argc, char *argv[])
 				break;
 			case 't':
 				printf("t with %s\n", optarg);
-				realTime = optarg;
+				realTime = atoi(optarg);
 				break;
 			case ':':
 				printf("Option needs a value\n");
@@ -46,5 +47,14 @@ int main(int argc, char *argv[])
 	{
 		printf("extra arguments: %s\n", argv[optind]);
 	}
+	
+	for (i = 1; i < maxChildProcesses; i++)
+	{
+		if(cpid = fork())
+			break;
+	}
+
+	printf("---\n");
+
 	return 0;
 }
